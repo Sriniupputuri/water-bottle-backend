@@ -3,14 +3,17 @@ import router from "./routes/userRoutes.js";
 const app = express();
 import mongoose from "mongoose";
 
-app.use(express.json())
+import dotenv from "dotenv";
+dotenv.config();
 
-mongoose.connect(
-  "mongodb+srv://srinivasupputuri0626:srinivasupputuri0626@cluster0.lhuwfpa.mongodb.net/?retryWrites=true&w=majority"
-);
+app.use(express.json());
 
-app.use("/api/users",router)
+mongoose.connect(process.env.MONGODB_URL);
 
-app.listen(5000, () => {
-  console.log("Successfully running");
+app.use("/api/users", router);
+
+const Port = 5500;
+
+app.listen(Port, () => {
+  console.log(Port);
 });

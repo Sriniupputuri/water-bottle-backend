@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 export const getAllUsers = async (req, res) => {
   let users;
   try {
-    users = await UserModel.find();
+    users = await UserModel.find().sort({ _id: -1 });
   } catch (err) {
     return console.log(err);
   }
@@ -23,7 +23,7 @@ export const signup = async (req, res) => {
     return console.log(err);
   }
   if (existingUser) {
-    res.status(400).json({ message: "User already exist" });
+    return res.status(400).json({ message: "User already exist" });
   }
   let hashedPass = bcrypt.hashSync(password);
   let user = new UserModel({
@@ -36,5 +36,25 @@ export const signup = async (req, res) => {
   } catch (err) {
     return console.log(err);
   }
-  res.status(200).json({ message: "signed up successfully" });
+  return res.status(200).json({ message: "signed up successfully" });
+};
+
+export const login = async (req, res, next) => {
+  let { email, password } = req.body;
+
+  let userExist;
+  try {
+    userExist = await UserModel.findOne({ email });
+  } catch (err) {
+    return console.log(err);
+  }
+  if (!userExist) {
+    return res.status(404).json({ message: "User not exist. please signup" });
+  }
+  let isPasswordCorrect = bcrypt.compareSync(password, userExist.password);
+
+  if (!isPasswordCorrect) {
+    return res.status(400).json({ message: "Password is not correct" });
+  }
+  return res.status(200).json({ message: "Loggedin successfull", userExist });
 };
